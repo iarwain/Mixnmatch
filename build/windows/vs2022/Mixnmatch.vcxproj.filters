@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{2E0B7BE0-DBDB-5545-88E0-1786AC265968}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{B65B5732-3043-1E40-AE64-661C3AEEDD6B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\Scroll">
+      <UniqueIdentifier>{5D2053C6-F006-CC44-99EC-FF4737963CC8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inline">
+      <UniqueIdentifier>{A3CCF727-7B67-274C-B68D-4315E6F8F073}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{86C464EB-6ED1-DD45-9852-1727E5D66C07}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\include\Scroll\Scroll.inl">
+      <Filter>inline</Filter>
+    </None>
+    <None Include="..\..\..\include\Scroll\ScrollBase.inl">
+      <Filter>inline</Filter>
+    </None>
+    <None Include="..\..\..\include\Scroll\ScrollEd.inl">
+      <Filter>inline</Filter>
+    </None>
+    <None Include="..\..\..\include\Scroll\ScrollObject.inl">
+      <Filter>inline</Filter>
+    </None>
+    <None Include="..\..\..\data\config\CreationTemplate.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\Mixnmatch.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\Mixnmatchd.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\Mixnmatchp.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\SettingsTemplate.ini">
+      <Filter>config</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\include\Character.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\Mixnmatch.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\Scroll\Scroll.h">
+      <Filter>include\Scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\Scroll\ScrollBase.h">
+      <Filter>include\Scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\Scroll\ScrollEd.h">
+      <Filter>include\Scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\Scroll\ScrollObject.h">
+      <Filter>include\Scroll</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\Character.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\Mixnmatch.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
