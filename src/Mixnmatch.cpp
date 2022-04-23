@@ -17,6 +17,64 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 
 #endif // __orxMSVC__
 
+void GenerateData()
+{
+    orxConfig_PushSection("Generation");
+
+    const orxSTRING zFormat = orxConfig_GetString("TextureFormat");
+
+    if(*zFormat != orxCHAR_NULL)
+    {
+        // For all characters
+        for(orxS32 i = 0, iCount = orxConfig_GetListCount("Characters"); i < iCount; i++)
+        {
+            const orxSTRING zCharacter = orxConfig_GetListString("Characters", i);
+
+            orxCHAR acCharacterBuffer[64];
+            orxString_NPrint(acCharacterBuffer, sizeof(acCharacterBuffer), "%sCharacter", zCharacter);
+
+            // Push character's config section
+            orxConfig_PushSection(zCharacter);
+
+            // For all layers
+            for(orxS32 j = 0, jCount = orxConfig_GetKeyCount(); j < jCount; j++)
+            {
+                const orxSTRING zLayer = orxConfig_GetKey(j);
+
+                // For all variations
+                for(orxS32 k = 0, kCount = orxConfig_GetListCount(zLayer); k < kCount; k++)
+                {
+                    orxCHAR acBuffer[256];
+
+                    const orxSTRING zVariation = orxConfig_GetListString(zLayer, k);
+
+                    // Get full name of asset
+                    orxString_NPrint(acBuffer, sizeof(acBuffer), "%s%s%s", zCharacter, zLayer, zVariation);
+
+                    // Add it to the base character's section to allow for random selection
+                    orxConfig_PushSection(acCharacterBuffer);
+                    orxConfig_SetParent(acCharacterBuffer, "Character");
+                    const orxSTRING zAsset = acBuffer;
+                    orxConfig_AppendListString(zLayer, &zAsset, 1);
+                    orxConfig_PopSection();
+
+                    // Generate asset's content
+                    orxConfig_PushSection(acBuffer);
+                    orxConfig_SetParent(acBuffer, zLayer);
+                    orxString_NPrint(acBuffer, sizeof(acBuffer), zFormat, zCharacter, zLayer, zVariation);
+                    orxConfig_SetString(orxGRAPHIC_KZ_CONFIG_TEXTURE_NAME, acBuffer);
+                    orxConfig_PopSection();
+                }
+            }
+
+            // Pop config section
+            orxConfig_PopSection();
+        }
+    }
+
+    orxConfig_PopSection();
+}
+
 /** Update function, it has been registered to be called every tick of the core clock
  */
 void Mixnmatch::Update(const orxCLOCK_INFO &_rstInfo)
@@ -33,6 +91,9 @@ void Mixnmatch::Update(const orxCLOCK_INFO &_rstInfo)
  */
 orxSTATUS Mixnmatch::Init()
 {
+    // Generate data
+    GenerateData();
+
     // Create the scene
     CreateObject("Scene");
 
