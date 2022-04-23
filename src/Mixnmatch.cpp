@@ -87,6 +87,12 @@ void GenerateData()
  */
 void Mixnmatch::Update(const orxCLOCK_INFO &_rstInfo)
 {
+    // Should Reset?
+    if(orxInput_HasBeenActivated("Reset"))
+    {
+        // Creates reset object
+        CreateObject("Reset");
+    }
     // Should quit?
     if(orxInput_IsActive("Quit"))
     {
