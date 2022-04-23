@@ -30,6 +30,7 @@ void GenerateData()
         {
             const orxSTRING zCharacter = orxConfig_GetListString("Characters", i);
 
+            // Get character name
             orxCHAR acCharacterBuffer[64];
             orxString_NPrint(acCharacterBuffer, sizeof(acCharacterBuffer), "%sCharacter", zCharacter);
 
@@ -44,26 +45,33 @@ void GenerateData()
                 // For all variations
                 for(orxS32 k = 0, kCount = orxConfig_GetListCount(zLayer); k < kCount; k++)
                 {
-                    orxCHAR acBuffer[256];
-
                     const orxSTRING zVariation = orxConfig_GetListString(zLayer, k);
 
-                    // Get full name of asset
-                    orxString_NPrint(acBuffer, sizeof(acBuffer), "%s%s%s", zCharacter, zLayer, zVariation);
+                    // Get texture name
+                    orxCHAR acTextureBuffer[256];
+                    orxString_NPrint(acTextureBuffer, sizeof(acTextureBuffer), zFormat, zCharacter, zLayer, zVariation);
 
-                    // Add it to the base character's section to allow for random selection
-                    orxConfig_PushSection(acCharacterBuffer);
-                    orxConfig_SetParent(acCharacterBuffer, "Character");
-                    const orxSTRING zAsset = acBuffer;
-                    orxConfig_AppendListString(zLayer, &zAsset, 1);
-                    orxConfig_PopSection();
+                    // Does it exist?
+                    if(orxResource_Locate(orxTEXTURE_KZ_RESOURCE_GROUP, acTextureBuffer))
+                    {
+                        orxCHAR acAssetBuffer[64];
 
-                    // Generate asset's content
-                    orxConfig_PushSection(acBuffer);
-                    orxConfig_SetParent(acBuffer, zLayer);
-                    orxString_NPrint(acBuffer, sizeof(acBuffer), zFormat, zCharacter, zLayer, zVariation);
-                    orxConfig_SetString(orxGRAPHIC_KZ_CONFIG_TEXTURE_NAME, acBuffer);
-                    orxConfig_PopSection();
+                        // Get asset name
+                        orxString_NPrint(acAssetBuffer, sizeof(acAssetBuffer), "%s%s%s", zCharacter, zLayer, zVariation);
+
+                        // Add it to the base character's section to allow for random selection
+                        orxConfig_PushSection(acCharacterBuffer);
+                        orxConfig_SetParent(acCharacterBuffer, "Character");
+                        const orxSTRING zAsset = acAssetBuffer;
+                        orxConfig_AppendListString(zLayer, &zAsset, 1);
+                        orxConfig_PopSection();
+
+                        // Generate asset's content
+                        orxConfig_PushSection(acAssetBuffer);
+                        orxConfig_SetParent(acAssetBuffer, zLayer);
+                        orxConfig_SetString(orxGRAPHIC_KZ_CONFIG_TEXTURE_NAME, acTextureBuffer);
+                        orxConfig_PopSection();
+                    }
                 }
             }
 
