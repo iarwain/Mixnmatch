@@ -107,19 +107,58 @@ void GenerateAnims()
                 {
                     const orxSTRING zOrientation = orxConfig_GetListString("Orientations", k);
 
-                    // Set anim's frame count
+                    // Init anim
                     orxCHAR acAnim[64];
-                    orxU32  u32FrameCount = orxConfig_GetU32(zAnim);
                     orxString_NPrint(acAnim, sizeof(acAnim), ".%s%s", zAnim, zOrientation);
-                    orxConfig_SetU32(acAnim + 1, u32FrameCount);
+                    orxConfig_SetU32(acAnim + 1, 0);
 
-                    // Set first frame's FrameIndex
-                    orxCHAR acFrame[64];
-                    orxString_NPrint(acFrame, sizeof(acFrame), "%s%s1", zAnim, zOrientation);
-                    orxConfig_PushSection(acFrame);
-                    orxConfig_SetU32("FrameIndex", u32FrameIndex);
-                    u32FrameIndex += u32FrameCount;
-                    orxConfig_PopSection();
+                    // Generate all frames
+                    orxU32 u32FrameCount = orxConfig_GetU32(zAnim);
+                    for(orxU32 u32Index = 1; ; u32Index++)
+                    {
+                        orxCHAR acParentFrame[64];
+                        orxString_NPrint(acParentFrame, sizeof(acParentFrame), "%s%u", zAnim, u32Index);
+                        // Is physical frame or was it manually defined in config?
+                        if((u32Index <= u32FrameCount) || orxConfig_HasSection(acParentFrame))
+                        {
+                            orxCHAR acFrame[64];
+                            orxString_NPrint(acFrame, sizeof(acFrame), "%s%s%u", zAnim, zOrientation, u32Index);
+                            // Physical frame?
+                            if(u32Index <= u32FrameCount)
+                            {
+                                orxConfig_PushSection(acFrame);
+                                orxConfig_SetU32("FrameIndex", u32FrameIndex++);
+                                orxConfig_PopSection();
+                            }
+                            // Manually defined in config?
+                            if(orxConfig_HasSection(acParentFrame))
+                            {
+                                orxCHAR acParent[64];
+                                orxString_NPrint(acParent, sizeof(acParent), "@%s", acParentFrame);
+                                orxConfig_PushSection(acParentFrame);
+                                // For all manually defined properties
+                                for(orxS32 l = 0, lCount = orxConfig_GetKeyCount(); l < lCount; l++)
+                                {
+                                    const orxSTRING zKey = orxConfig_GetKey(l);
+                                    orxConfig_PushSection(acFrame);
+                                    orxConfig_SetString(zKey, acParent);
+                                    // Execute generative lazy command hook
+                                    if(*zKey == '!')
+                                    {
+                                        orxConfig_GetString(zKey);
+                                        orxConfig_ClearValue(zKey);
+                                    }
+                                    orxConfig_PopSection();
+                                }
+                                orxConfig_PopSection();
+                            }
+                        }
+                        else
+                        {
+                            // Stop, all frames have been processed
+                            break;
+                        }
+                    }
 
                     // Start anim?
                     if(*acStartAnim == orxCHAR_NULL)
