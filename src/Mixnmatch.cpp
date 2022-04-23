@@ -17,13 +17,12 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 
 #endif // __orxMSVC__
 
-void GenerateData()
+void GenerateCharacters()
 {
-    // Generate characters
     orxConfig_PushSection("Characters");
 
+    // Has texture format?
     const orxSTRING zFormat = orxConfig_GetString("TextureFormat");
-
     if(*zFormat != orxCHAR_NULL)
     {
         // For all characters
@@ -35,42 +34,42 @@ void GenerateData()
             orxConfig_PushSection(zCharacter);
 
             // Get character section
-            orxCHAR acCharacterBuffer[64];
-            orxString_NPrint(acCharacterBuffer, sizeof(acCharacterBuffer), "%sCharacter", zCharacter);
+            orxCHAR acCharacter[64];
+            orxString_NPrint(acCharacter, sizeof(acCharacter), "%sCharacter", zCharacter);
 
             // For all defined layers
             for(orxS32 j = 0, jCount = orxConfig_GetKeyCount(); j < jCount; j++)
             {
                 const orxSTRING zLayer = orxConfig_GetKey(j);
 
-                // For all variations
+                // For all layer variations
                 for(orxS32 k = 0, kCount = orxConfig_GetListCount(zLayer); k < kCount; k++)
                 {
                     const orxSTRING zVariation = orxConfig_GetListString(zLayer, k);
 
                     // Get texture name
-                    orxCHAR acTextureBuffer[256];
-                    orxString_NPrint(acTextureBuffer, sizeof(acTextureBuffer), zFormat, zCharacter, zLayer, zVariation);
+                    orxCHAR acTexture[256];
+                    orxString_NPrint(acTexture, sizeof(acTexture), zFormat, zCharacter, zLayer, zVariation);
 
                     // Does it exist?
-                    if(orxResource_Locate(orxTEXTURE_KZ_RESOURCE_GROUP, acTextureBuffer))
+                    if(orxResource_Locate(orxTEXTURE_KZ_RESOURCE_GROUP, acTexture))
                     {
-                        orxCHAR acAssetBuffer[64];
+                        orxCHAR acAsset[64];
 
                         // Get asset name
-                        orxString_NPrint(acAssetBuffer, sizeof(acAssetBuffer), "%s%s%s", zCharacter, zLayer, zVariation);
+                        orxString_NPrint(acAsset, sizeof(acAsset), "%s%s%s", zCharacter, zLayer, zVariation);
 
                         // Add it to the character's section to default with random layer selection
-                        orxConfig_PushSection(acCharacterBuffer);
-                        orxConfig_SetParent(acCharacterBuffer, "Character");
-                        const orxSTRING zAsset = acAssetBuffer;
+                        orxConfig_PushSection(acCharacter);
+                        orxConfig_SetParent(acCharacter, "Character");
+                        const orxSTRING zAsset = acAsset;
                         orxConfig_AppendListString(zLayer, &zAsset, 1);
                         orxConfig_PopSection();
 
                         // Generate asset's content
-                        orxConfig_PushSection(acAssetBuffer);
-                        orxConfig_SetParent(acAssetBuffer, zLayer);
-                        orxConfig_SetString(orxGRAPHIC_KZ_CONFIG_TEXTURE_NAME, acTextureBuffer);
+                        orxConfig_PushSection(acAsset);
+                        orxConfig_SetParent(acAsset, zLayer);
+                        orxConfig_SetString(orxGRAPHIC_KZ_CONFIG_TEXTURE_NAME, acTexture);
                         orxConfig_PopSection();
                     }
                 }
@@ -82,6 +81,81 @@ void GenerateData()
     }
 
     orxConfig_PopSection();
+}
+
+void GenerateAnims()
+{
+    for(orxS32 i = 0, iCount = orxConfig_GetSectionCount(); i < iCount; i++)
+    {
+        const orxSTRING zSection = orxConfig_GetSection(i);
+
+        orxConfig_PushSection(zSection);
+
+        // Should generate?
+        if(orxConfig_GetBool("Generate") && !orxConfig_IsInheritedValue("Generate"))
+        {
+            orxCHAR acStartAnim[64] = {}, acStartAnimLink[64];
+            orxU32  u32FrameIndex = 1;
+
+            // For all animations
+            for(orxS32 j = 0, jCount = orxConfig_GetListCount("Anims"); j < jCount; j++)
+            {
+                const orxSTRING zAnim = orxConfig_GetListString("Anims", j);
+
+                // For all orientations
+                for(orxS32 k = 0, kCount = orxConfig_GetListCount("Orientations"); k < kCount; k++)
+                {
+                    const orxSTRING zOrientation = orxConfig_GetListString("Orientations", k);
+
+                    // Set anim's frame count
+                    orxCHAR acAnim[64];
+                    orxU32  u32FrameCount = orxConfig_GetU32(zAnim);
+                    orxString_NPrint(acAnim, sizeof(acAnim), ".%s%s", zAnim, zOrientation);
+                    orxConfig_SetU32(acAnim + 1, u32FrameCount);
+
+                    // Set first frame's FrameIndex
+                    orxCHAR acFrame[64];
+                    orxString_NPrint(acFrame, sizeof(acFrame), "%s%s1", zAnim, zOrientation);
+                    orxConfig_PushSection(acFrame);
+                    orxConfig_SetU32("FrameIndex", u32FrameIndex);
+                    u32FrameIndex += u32FrameCount;
+                    orxConfig_PopSection();
+
+                    // Start anim?
+                    if(*acStartAnim == orxCHAR_NULL)
+                    {
+                        // Set start anim & initial link
+                        orxString_NPrint(acStartAnim, sizeof(acStartAnim), ".%s%s", zAnim, zOrientation);
+                        orxConfig_SetString("StartAnim", acStartAnim + 1);
+                        orxString_NPrint(acStartAnimLink, sizeof(acStartAnimLink), "%s%s->", zAnim, zOrientation);
+                        orxConfig_SetString(acStartAnimLink, acStartAnim + 1);
+                    }
+                    else
+                    {
+                        // Set anim links
+                        const orxSTRING zTargetAnim;
+                        orxCHAR acAnimLink[64];
+                        orxString_NPrint(acAnimLink, sizeof(acAnimLink), "%s%s->", zAnim, zOrientation);
+                        orxConfig_SetString(acAnimLink, acAnim + 1);
+                        zTargetAnim = acStartAnim;
+                        orxConfig_AppendListString(acAnimLink, &zTargetAnim, 1);
+
+                        // Update start anim links
+                        zTargetAnim = acAnim;
+                        orxConfig_AppendListString(acStartAnimLink, &zTargetAnim, 1);
+                    }
+                }
+            }
+        }
+
+        orxConfig_PopSection();
+    }
+}
+
+void GenerateData()
+{
+    GenerateCharacters();
+    GenerateAnims();
 }
 
 /** Update function, it has been registered to be called every tick of the core clock
