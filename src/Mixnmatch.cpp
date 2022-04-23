@@ -19,7 +19,8 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 
 void GenerateData()
 {
-    orxConfig_PushSection("Generation");
+    // Generate characters
+    orxConfig_PushSection("Characters");
 
     const orxSTRING zFormat = orxConfig_GetString("TextureFormat");
 
@@ -30,14 +31,14 @@ void GenerateData()
         {
             const orxSTRING zCharacter = orxConfig_GetListString("Characters", i);
 
-            // Get character name
-            orxCHAR acCharacterBuffer[64];
-            orxString_NPrint(acCharacterBuffer, sizeof(acCharacterBuffer), "%sCharacter", zCharacter);
-
             // Push character's config section
             orxConfig_PushSection(zCharacter);
 
-            // For all layers
+            // Get character section
+            orxCHAR acCharacterBuffer[64];
+            orxString_NPrint(acCharacterBuffer, sizeof(acCharacterBuffer), "%sCharacter", zCharacter);
+
+            // For all defined layers
             for(orxS32 j = 0, jCount = orxConfig_GetKeyCount(); j < jCount; j++)
             {
                 const orxSTRING zLayer = orxConfig_GetKey(j);
@@ -59,7 +60,7 @@ void GenerateData()
                         // Get asset name
                         orxString_NPrint(acAssetBuffer, sizeof(acAssetBuffer), "%s%s%s", zCharacter, zLayer, zVariation);
 
-                        // Add it to the base character's section to allow for random selection
+                        // Add it to the character's section to default with random layer selection
                         orxConfig_PushSection(acCharacterBuffer);
                         orxConfig_SetParent(acCharacterBuffer, "Character");
                         const orxSTRING zAsset = acAssetBuffer;
