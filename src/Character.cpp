@@ -10,7 +10,7 @@ void Character::OnCreate()
     // Enable our input set
     orxInput_EnableSet(orxConfig_GetCurrentSection(), orxTRUE);
 
-    // Starts facing down
+    // Start facing down
     this->eLastOrientation = Down;
 }
 
