@@ -28,13 +28,13 @@ void Character::Update(const orxCLOCK_INFO &_rstInfo)
     orxInput_SelectSet(orxConfig_GetCurrentSection());
 
     // Update movement
-    const orxSTRING zMove = "Idle";
+    const orxSTRING zAnim = "Idle";
     orxVECTOR vMove = {orxInput_GetValue("MoveRight") - orxInput_GetValue("MoveLeft"), orxInput_GetValue("MoveDown") - orxInput_GetValue("MoveUp")};
     if(!orxVector_IsNull(&vMove))
     {
-        zMove = orxInput_IsActive("Run") ? "Run" : "Walk";
+        zAnim = orxInput_IsActive("Run") ? "Run" : "Walk";
         orxVector_FromCartesianToSpherical(&vMove, &vMove);
-        vMove.fRho = orxConfig_GetFloat(zMove);
+        vMove.fRho = orxConfig_GetFloat(zAnim);
         this->eLastOrientation = (Orientation)(orxF2S(orxMath_Round(vMove.fTheta / orxMATH_KF_PI_BY_4)) & 7);
         orxVector_FromSphericalToCartesian(&vMove, &vMove);
     }
@@ -42,7 +42,7 @@ void Character::Update(const orxCLOCK_INFO &_rstInfo)
 
     // Update anim
     orxCHAR acAnim[64];
-    orxString_NPrint(acAnim, sizeof(acAnim), "%s%s", zMove, orxConfig_GetListString("Orientations", this->eLastOrientation));
+    orxString_NPrint(acAnim, sizeof(acAnim), "%s%s", zAnim, orxConfig_GetListString("Orientations", this->eLastOrientation));
     SetAnim(acAnim, orxFALSE, orxTRUE);
 
     // Restore previous input set
