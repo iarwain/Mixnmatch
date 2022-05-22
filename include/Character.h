@@ -22,7 +22,9 @@ public:
                                 Left,
                                 UpLeft,
                                 Up,
-                                UpRight
+                                UpRight,
+
+                                Count
                 };
 
 
