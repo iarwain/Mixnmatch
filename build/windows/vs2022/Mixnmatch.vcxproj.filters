@@ -2,19 +2,22 @@
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="src">
-      <UniqueIdentifier>{2E0B7BE0-DBDB-5545-88E0-1786AC265968}</UniqueIdentifier>
+      <UniqueIdentifier>{8A223014-78C6-F54E-A4BB-707E13012EB4}</UniqueIdentifier>
     </Filter>
     <Filter Include="include">
-      <UniqueIdentifier>{B65B5732-3043-1E40-AE64-661C3AEEDD6B}</UniqueIdentifier>
+      <UniqueIdentifier>{358D2E6B-E651-2F40-AC05-05D18C7E05B3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\lz4">
+      <UniqueIdentifier>{7200566D-89A2-C84C-834B-028CE508D13B}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\Scroll">
-      <UniqueIdentifier>{5D2053C6-F006-CC44-99EC-FF4737963CC8}</UniqueIdentifier>
+      <UniqueIdentifier>{E3D10A4D-3D90-F347-B916-5E3274947F2A}</UniqueIdentifier>
     </Filter>
     <Filter Include="inline">
-      <UniqueIdentifier>{A3CCF727-7B67-274C-B68D-4315E6F8F073}</UniqueIdentifier>
+      <UniqueIdentifier>{D6EB7927-AB0B-FA47-A49E-E21614B34D2A}</UniqueIdentifier>
     </Filter>
     <Filter Include="config">
-      <UniqueIdentifier>{86C464EB-6ED1-DD45-9852-1727E5D66C07}</UniqueIdentifier>
+      <UniqueIdentifier>{15F68DBE-42DD-F342-B17A-3876FFB7F181}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -31,6 +34,12 @@
       <Filter>inline</Filter>
     </None>
     <None Include="..\..\..\data\config\CreationTemplate.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\Mixnmatch-gen.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\Mixnmatch-handmade.ini">
       <Filter>config</Filter>
     </None>
     <None Include="..\..\..\data\config\Mixnmatch.ini">
@@ -52,6 +61,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\include\Mixnmatch.h">
       <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\orxBundle.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lz4\lz4.h">
+      <Filter>include\lz4</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\lz4\lz4hc.h">
+      <Filter>include\lz4</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\Scroll\Scroll.h">
       <Filter>include\Scroll</Filter>
