@@ -11,7 +11,8 @@ function initconfigurations ()
     {
         "Debug",
         "Profile",
-        "Release"
+        "Release",
+        "Bundle"
     }
 end
 
@@ -130,6 +131,10 @@ solution "Mixnmatch"
         links {"orxp"}
 
     configuration {"*Release*"}
+        flags {"Optimize", "NoRTTI"}
+        links {"orx"}
+
+    configuration {"*Bundle*"}
         flags {"Optimize", "NoRTTI"}
         links {"orx"}
 
@@ -262,6 +267,9 @@ project "Mixnmatch"
         ["inline"] = {"**.inl"},
         ["config"] = {"**.ini"}
     }
+
+    configuration {"Bundle"}
+        debugargs {"-b", "Mixnmatch.obr"}
 
 
 -- Linux

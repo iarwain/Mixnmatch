@@ -7,6 +7,9 @@
 #include "Mixnmatch.h"
 #undef __SCROLL_IMPL__
 
+#define orxBUNDLE_IMPL
+#include "orxBundle.h"
+
 #include "Character.h"
 
 #ifdef __orxMSVC__
@@ -241,6 +244,8 @@ orxSTATUS Mixnmatch::Run()
  */
 void Mixnmatch::Exit()
 {
+    orxBundle_Exit();
+
     // Let orx clean all our mess automatically. :)
 }
 
@@ -256,7 +261,10 @@ void Mixnmatch::BindObjects()
  */
 orxSTATUS Mixnmatch::Bootstrap() const
 {
+    orxBundle_Init();
+
     // Add config storage to find the initial config file
+    orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, orxBUNDLE_KZ_RESOURCE_STORAGE "Mixnmatch.obr", orxFALSE);
     orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, "../data/config", orxFALSE);
 
     // Return orxSTATUS_FAILURE to prevent orx from loading the default config file
