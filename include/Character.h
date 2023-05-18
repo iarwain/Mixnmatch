@@ -6,7 +6,7 @@
 #ifndef __CHARACTER_H__
 #define __CHARACTER_H__
 
-#include "mixnmatch.h"
+#include "Mixnmatch.h"
 
 /** Character Class
  */
