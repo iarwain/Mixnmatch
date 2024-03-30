@@ -51,6 +51,17 @@ const orxSTRING orxFASTCALL                 orxBundle_GetOutputName();
 
 #ifdef orxBUNDLE_IMPL
 
+#if defined(__orxGCC__)
+
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wtautological-compare"
+
+#elif defined(__orxLLVM__)
+
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wtautological-compare"
+
+#endif
 
 //! Variables / Structures
 
@@ -99,7 +110,7 @@ static orxBOOL        sbProcess           = orxFALSE;
     do                                                                                            \
     {                                                                                             \
       orxS32 s32Count;                                                                            \
-      s32Count = orxString_NPrint(sacPrintBuffer, sizeof(sacPrintBuffer), FORMAT, #__VA_ARGS__);  \
+      s32Count = orxString_NPrint(sacPrintBuffer, sizeof(sacPrintBuffer), FORMAT, ##__VA_ARGS__); \
       orxResource_Write(RESOURCE, (orxS64)s32Count, sacPrintBuffer, orxNULL, orxNULL);            \
     } while(orxFALSE)
 #else // __orxGCC__ || __orxLLVM__
@@ -270,8 +281,12 @@ static orxINLINE void orxBundle_ClearToCTable()
       hIterator != orxHANDLE_UNDEFINED;
       hIterator = orxHashTable_GetNext(spstToCTable, hIterator, orxNULL, (void **)&pstToC))
   {
-    // Deletes it
-    orxHashTable_Delete(pstToC);
+    // Valid?
+    if(pstToC != orxNULL)
+    {
+      // Deletes it
+      orxHashTable_Delete(pstToC);
+    }
   }
 
   // Clears ToC table
@@ -412,8 +427,8 @@ static orxINLINE orxSTATUS orxBundle_Process()
   {
     typedef struct orxBUNDLE_RESOURCE_REF
     {
-      orxHANDLE       hResource;
       orxSTRINGID     stNameID;
+      const orxSTRING zLocation;
       const orxSTRING zGroup;
       const orxSTRING zRule;
       orxS64          s64Size;
@@ -425,7 +440,7 @@ static orxINLINE orxSTATUS orxBundle_Process()
       const orxSTRING zKey;
       const orxSTRING zQualifier;
       void *          pValue;
-    } azRuleInfoList[] =
+    } astRuleInfoList[] =
     {
       {orxBUNDLE_KZ_CONFIG_EXCLUDE_LIST, orxANSI_KZ_COLOR_FG_RED "-" orxANSI_KZ_COLOR_RESET,    (void *)orxSTRING_FALSE},
       {orxBUNDLE_KZ_CONFIG_INCLUDE_LIST, orxANSI_KZ_COLOR_FG_GREEN "+" orxANSI_KZ_COLOR_RESET,  (void *)orxSTRING_TRUE}
@@ -433,8 +448,8 @@ static orxINLINE orxSTATUS orxBundle_Process()
 
     orxDOUBLE     dBeginTime, dEndTime;
     orxBANK      *pstResourceBank;
-    orxHASHTABLE *pstRuleTable;
-    orxU32        i, j, iCount, jCount, u32GroupCount, u32ResourceIndex, u32ConfigHistoryExtensionLength;
+    orxHASHTABLE *pstRuleTable, *pstDiscoveryTable;
+    orxU32        i, j, iCount, jCount, u32GroupCount, u32ConfigHistoryExtensionLength;
     orxBOOL       bBinary;
 
     // Gets begin time
@@ -444,9 +459,11 @@ static orxINLINE orxSTATUS orxBundle_Process()
     pstResourceBank = orxBank_Create(orxBUNDLE_KU32_TABLE_SIZE, sizeof(orxBUNDLE_RESOURCE_REF), orxBANK_KU32_FLAG_NONE, orxMEMORY_TYPE_TEMP);
     orxASSERT(pstResourceBank != orxNULL);
 
-    // Creates rule table
+    // Creates rule & discovery tables
     pstRuleTable = orxHashTable_Create(orxBUNDLE_KU32_TABLE_SIZE, orxHASHTABLE_KU32_FLAG_NONE, orxMEMORY_TYPE_TEMP);
     orxASSERT(pstRuleTable != orxNULL);
+    pstDiscoveryTable = orxHashTable_Create(orxBUNDLE_KU32_TABLE_SIZE, orxHASHTABLE_KU32_FLAG_NONE, orxMEMORY_TYPE_TEMP);
+    orxASSERT(pstDiscoveryTable != orxNULL);
 
     // Updates status
     bBinary = (hOutput == shResource) ? orxTRUE : orxFALSE;
@@ -455,21 +472,21 @@ static orxINLINE orxSTATUS orxBundle_Process()
     orxConfig_PushSection(orxBUNDLE_KZ_CONFIG_SECTION);
 
     // For all rule lists
-    for(i = 0, iCount = orxARRAY_GET_ITEM_COUNT(azRuleInfoList); i < iCount; i++)
+    for(i = 0, iCount = orxARRAY_GET_ITEM_COUNT(astRuleInfoList); i < iCount; i++)
     {
       // For all list entries
-      for(j = 0, jCount = (orxU32)orxConfig_GetListCount(azRuleInfoList[i].zKey); j < jCount; j++)
+      for(j = 0, jCount = (orxU32)orxConfig_GetListCount(astRuleInfoList[i].zKey); j < jCount; j++)
       {
         const orxSTRING zRule;
 
         // Gets it
-        zRule = orxConfig_GetListString(azRuleInfoList[i].zKey, (orxS32)j);
+        zRule = orxConfig_GetListString(astRuleInfoList[i].zKey, (orxS32)j);
 
         // Adds it to the rule table
-        *orxHashTable_Retrieve(pstRuleTable, orxString_Hash(zRule)) = azRuleInfoList[i].pValue;
+        *orxHashTable_Retrieve(pstRuleTable, orxString_Hash(zRule)) = astRuleInfoList[i].pValue;
 
         // Logs message
-        orxLOG(orxBUNDLE_KZ_LOG_TAG "Applying rule %s" orxANSI_KZ_COLOR_FG_CYAN "%s" orxANSI_KZ_COLOR_RESET, azRuleInfoList[i].zQualifier, zRule);
+        orxLOG(orxBUNDLE_KZ_LOG_TAG "Applying rule %s" orxANSI_KZ_COLOR_FG_CYAN "%s" orxANSI_KZ_COLOR_RESET, astRuleInfoList[i].zQualifier, zRule);
       }
     }
 
@@ -513,15 +530,25 @@ static orxINLINE orxSTATUS orxBundle_Process()
             for(u32GroupIndex = 0; u32GroupIndex < u32GroupCount; u32GroupIndex++)
             {
               const orxSTRING zGroup;
+              const orxSTRING zLocation;
 
               // Gets group
               zGroup = orxResource_GetGroup(u32GroupIndex);
 
               // Locates it
-              if(orxResource_Locate(zGroup, zValue) != orxNULL)
+              zLocation = orxResource_Locate(zGroup, zValue);
+
+              // Valid?
+              if(zLocation != orxNULL)
               {
-                // Logs message
-                orxLOG(orxBUNDLE_KZ_LOG_TAG "Discovered " orxBUNDLE_KZ_RESOURCE_FORMAT, zGroup, zValue);
+                // Not an internal resource & not already discovered?
+                if(((orxString_Compare(orxResource_GetType(zLocation)->zTag, orxRESOURCE_KZ_TYPE_TAG_MEMORY) != 0)
+                 || (orxString_SearchString(zValue, "orx:") != zValue))
+                && (orxHashTable_Add(pstDiscoveryTable, orxString_Hash(zLocation), (void *)orxTRUE) != orxSTATUS_FAILURE))
+                {
+                  // Logs message
+                  orxLOG(orxBUNDLE_KZ_LOG_TAG "Discovered " orxBUNDLE_KZ_RESOURCE_FORMAT, zGroup, zValue);
+                }
 
                 // Stops
                 break;
@@ -536,7 +563,7 @@ static orxINLINE orxSTATUS orxBundle_Process()
     u32ConfigHistoryExtensionLength = orxString_GetLength(orxCONSOLE_KZ_CONFIG_HISTORY_FILE_EXTENSION);
 
     // For all groups
-    for(i = 0, iCount = orxResource_GetGroupCount(), u32ResourceIndex = 0; i < iCount; i++)
+    for(i = 0, iCount = orxResource_GetGroupCount(); i < iCount; i++)
     {
       const orxSTRING zGroup;
       const orxSTRING zLocation;
@@ -555,77 +582,82 @@ static orxINLINE orxSTATUS orxBundle_Process()
             hIterator != orxHANDLE_UNDEFINED;
             hIterator = orxResource_GetNextCachedLocation(zGroup, hIterator, &zLocation, &zStorage, &zName))
         {
+          const orxSTRING zTag;
+
+          // Gets resource tag
+          zTag = orxResource_GetType(zLocation)->zTag;
+
           // Not a bundle?
-          if(orxString_Compare(orxResource_GetType(zLocation)->zTag, orxBUNDLE_KZ_RESOURCE_TAG) != 0)
+          if(orxString_Compare(zTag, orxBUNDLE_KZ_RESOURCE_TAG) != 0)
           {
-            const orxSTRING zMatch;
-
-            // Not a config history file?
-            if(((zMatch = orxString_SearchString(zName, orxCONSOLE_KZ_CONFIG_HISTORY_FILE_EXTENSION)) == orxNULL)
-            || ((zMatch > zName) && (*(zMatch - 1) != '.'))
-            || (*(zMatch + u32ConfigHistoryExtensionLength) != orxCHAR_NULL))
+            // Not an internal resource?
+            if((orxString_Compare(zTag, orxRESOURCE_KZ_TYPE_TAG_MEMORY) != 0)
+            || (orxString_SearchString(zName, "orx:") != zName))
             {
-              orxHANDLE hResource;
-              orxS64    s64Size;
+              const orxSTRING zMatch;
 
-              // Opens resource
-              orxDEBUG_ENABLE_LEVEL(orxDEBUG_LEVEL_SYSTEM, orxFALSE);
-              hResource = orxResource_Open(zLocation, orxFALSE);
-              orxDEBUG_ENABLE_LEVEL(orxDEBUG_LEVEL_SYSTEM, orxTRUE);
-
-              // Success?
-              if(hResource != orxHANDLE_UNDEFINED)
+              // Not a config history file?
+              if(((zMatch = orxString_SearchString(zName, orxCONSOLE_KZ_CONFIG_HISTORY_FILE_EXTENSION)) == orxNULL)
+              || ((zMatch > zName) && (*(zMatch - 1) != '.'))
+              || (*(zMatch + u32ConfigHistoryExtensionLength) != orxCHAR_NULL))
               {
-                const orxSTRING azRuleList[] = {zName, zStorage, zGroup};
-                const orxSTRING zRule = orxNULL;
-                orxU32          j, jCount;
-                orxBOOL         bCollect;
+                orxHANDLE hResource;
+                orxS64    s64Size;
 
-                // For all potential rules
-                for(j = 0, jCount = orxARRAY_GET_ITEM_COUNT(azRuleList), bCollect = orxTRUE; j < jCount; j++)
+                // Opens resource
+                orxDEBUG_ENABLE_LEVEL(orxDEBUG_LEVEL_SYSTEM, orxFALSE);
+                hResource = orxResource_Open(zLocation, orxFALSE);
+                orxDEBUG_ENABLE_LEVEL(orxDEBUG_LEVEL_SYSTEM, orxTRUE);
+
+                // Success?
+                if(hResource != orxHANDLE_UNDEFINED)
                 {
-                  void *pValue;
+                  const orxSTRING azRuleList[] = {zName, zStorage, zGroup};
+                  const orxSTRING zRule = orxNULL;
+                  orxU32          j, jCount;
+                  orxBOOL         bCollect;
 
-                  // Has rule?
-                  if((pValue = orxHashTable_Get(pstRuleTable, orxString_Hash(azRuleList[j]))) != orxNULL)
+                  // For all potential rules
+                  for(j = 0, jCount = orxARRAY_GET_ITEM_COUNT(azRuleList), bCollect = orxTRUE; j < jCount; j++)
                   {
-                    // Stores it
-                    zRule = azRuleList[j];
+                    void *pValue;
 
-                    // Updates status
-                    bCollect = (pValue != (void *)orxSTRING_FALSE) ? orxTRUE : orxFALSE;
-                    break;
+                    // Has rule?
+                    if((pValue = orxHashTable_Get(pstRuleTable, orxString_Hash(azRuleList[j]))) != orxNULL)
+                    {
+                      // Stores it
+                      zRule = azRuleList[j];
+
+                      // Updates status
+                      bCollect = (pValue != (void *)orxSTRING_FALSE) ? orxTRUE : orxFALSE;
+                      break;
+                    }
                   }
-                }
 
-                // Should collect?
-                if(bCollect != orxFALSE)
-                {
-                  // Isn't empty?
-                  if((s64Size = orxResource_GetSize(hResource)) > 0)
+                  // Should collect?
+                  if(bCollect != orxFALSE)
                   {
-                    orxBUNDLE_RESOURCE_REF *pstResourceRef;
+                    // Isn't empty?
+                    if((s64Size = orxResource_GetSize(hResource)) > 0)
+                    {
+                      orxBUNDLE_RESOURCE_REF *pstResourceRef;
 
-                    // Adds ref
-                    pstResourceRef = (orxBUNDLE_RESOURCE_REF *)orxBank_Allocate(pstResourceBank);
-                    orxASSERT(pstResourceRef != orxNULL);
-                    pstResourceRef->hResource       = hResource;
-                    pstResourceRef->stNameID        = orxString_GetID(zName);
-                    pstResourceRef->zGroup          = zGroup;
-                    pstResourceRef->zRule           = zRule;
-                    pstResourceRef->s64Size         = 0;
-                    pstResourceRef->s64FinalSize    = s64Size;
+                      // Adds ref
+                      pstResourceRef = (orxBUNDLE_RESOURCE_REF *)orxBank_Allocate(pstResourceBank);
+                      orxASSERT(pstResourceRef != orxNULL);
+                      pstResourceRef->stNameID        = orxString_GetID(zName);
+                      pstResourceRef->zLocation       = zLocation;
+                      pstResourceRef->zGroup          = zGroup;
+                      pstResourceRef->zRule           = zRule;
+                      pstResourceRef->s64Size         = 0;
+                      pstResourceRef->s64FinalSize    = s64Size;
+                    }
                   }
                   else
                   {
-                    // Closes it
-                    orxResource_Close(hResource);
+                    // Logs message
+                    orxLOG(orxBUNDLE_KZ_LOG_TAG "Skipping " orxBUNDLE_KZ_RESOURCE_FORMAT " (rule " orxANSI_KZ_COLOR_FG_RED "-" orxANSI_KZ_COLOR_FG_CYAN "%s" orxANSI_KZ_COLOR_RESET ")", zGroup, zName, zRule);
                   }
-                }
-                else
-                {
-                  // Logs message
-                  orxLOG(orxBUNDLE_KZ_LOG_TAG "Skipping " orxBUNDLE_KZ_RESOURCE_FORMAT " (rule " orxANSI_KZ_COLOR_FG_RED "-" orxANSI_KZ_COLOR_FG_CYAN "%s" orxANSI_KZ_COLOR_RESET ")", zGroup, zName, zRule);
 
                   // Closes it
                   orxResource_Close(hResource);
@@ -641,7 +673,7 @@ static orxINLINE orxSTATUS orxBundle_Process()
     if(orxBank_GetCount(pstResourceBank) != 0)
     {
       orxBUNDLE_RESOURCE_REF *pstResourceRef, *pstNextResourceRef;
-      orxU32                  u32HeaderSize = 0;
+      orxU32                  u32HeaderSize = 0, u32ResourceIndex;
 
       // Binary output?
       if(bBinary != orxFALSE)
@@ -661,10 +693,6 @@ static orxINLINE orxSTATUS orxBundle_Process()
 
         // Gets next resource ref
         pstNextResourceRef = (orxBUNDLE_RESOURCE_REF *)orxBank_GetNext(pstResourceBank, pstResourceRef);
-
-        // Gets internal resource
-        hResource                 = pstResourceRef->hResource;
-        pstResourceRef->hResource = orxHANDLE_UNDEFINED;
 
         // Allocates buffer
         pu8Buffer = (orxU8 *)orxMemory_Allocate((orxU32)(pstResourceRef->s64FinalSize), orxMEMORY_TYPE_TEMP);
@@ -691,8 +719,12 @@ static orxINLINE orxSTATUS orxBundle_Process()
                  orxBundle_GetHumanReadableSize(pstResourceRef->s64FinalSize, 2));
         }
 
+        // Gets internal resource
+        hResource = orxResource_Open(pstResourceRef->zLocation, orxFALSE);
+
         // Reads data
-        if(orxResource_Read(hResource, pstResourceRef->s64FinalSize, pu8Buffer, orxNULL, orxNULL) == pstResourceRef->s64FinalSize)
+        if((hResource != orxHANDLE_UNDEFINED)
+        && (orxResource_Read(hResource, pstResourceRef->s64FinalSize, pu8Buffer, orxNULL, orxNULL) == pstResourceRef->s64FinalSize))
         {
           orxS32  s32CompressedSize;
           orxU8  *pu8CompressedBuffer;
@@ -798,7 +830,10 @@ static orxINLINE orxSTATUS orxBundle_Process()
         orxMemory_Free(pu8Buffer);
 
         // Closes resource
-        orxResource_Close(hResource);
+        if(hResource != orxHANDLE_UNDEFINED)
+        {
+          orxResource_Close(hResource);
+        }
       }
 
       // Still has data?
@@ -864,7 +899,7 @@ static orxINLINE orxSTATUS orxBundle_Process()
 
         // Logs message
         orxString_NPrint(acPrintBuffer, sizeof(acPrintBuffer), "%s", orxBundle_GetHumanReadableSize(s64FinalSize, 2));
-        orxLOG(orxBUNDLE_KZ_LOG_TAG "Bundled " orxANSI_KZ_COLOR_FG_CYAN "%u" orxANSI_KZ_COLOR_RESET " resources into " orxANSI_KZ_COLOR_FG_MAGENTA "%s" orxANSI_KZ_COLOR_RESET " in " orxANSI_KZ_COLOR_FG_CYAN "%.2g" orxANSI_KZ_COLOR_RESET "s, " orxANSI_KZ_COLOR_FG_GREEN "(%s) -> [%s]" orxANSI_KZ_COLOR_FG_CYAN " (%.2f%%)" orxANSI_KZ_COLOR_RESET,
+        orxLOG(orxBUNDLE_KZ_LOG_TAG "Bundled " orxANSI_KZ_COLOR_FG_CYAN "%u" orxANSI_KZ_COLOR_RESET " resources into " orxANSI_KZ_COLOR_FG_MAGENTA "%s" orxANSI_KZ_COLOR_RESET " in " orxANSI_KZ_COLOR_FG_CYAN "%.2f" orxANSI_KZ_COLOR_RESET "s, " orxANSI_KZ_COLOR_FG_GREEN "(%s) -> [%s]" orxANSI_KZ_COLOR_FG_CYAN " (%.2f%%)" orxANSI_KZ_COLOR_RESET,
               u32ResourceIndex,
               orxResource_GetPath(orxResource_GetLocation(hOutput)),
               orx2F(dEndTime - dBeginTime),
@@ -877,8 +912,9 @@ static orxINLINE orxSTATUS orxBundle_Process()
     // Pops config section
     orxConfig_PopSection();
 
-    // Deletes rule table
+    // Deletes rule & discovery tables
     orxHashTable_Delete(pstRuleTable);
+    orxHashTable_Delete(pstDiscoveryTable);
 
     // Deletes resource bank
     orxBank_Delete(pstResourceBank);
@@ -1009,8 +1045,7 @@ const orxSTRING orxFASTCALL orxBundle_Locate(const orxSTRING _zGroup, const orxS
         if(zLocation != orxNULL)
         {
           orxHASHTABLE  **ppstToC;
-          orxSTRINGID     stLocationID, stResourceID;
-          orxU32          u32ResourceIndex;
+          orxSTRINGID     stLocationID;
 
           // Gets its location ID
           stLocationID = orxString_Hash(zLocation);
@@ -1091,20 +1126,27 @@ const orxSTRING orxFASTCALL orxBundle_Locate(const orxSTRING _zGroup, const orxS
             }
           }
 
-          // Gets resource ID
-          stResourceID = orxString_Hash(_zName);
-
-          // Retrieves its index
-          u32ResourceIndex = (orxU32)(orxUPTR)orxHashTable_Get(*ppstToC, stResourceID);
-
           // Valid?
-          if(u32ResourceIndex != 0)
+          if(*ppstToC != orxNULL)
           {
-            // Creates location string: location + index
-            orxString_NPrint(sacBuffer, sizeof(sacBuffer), "%s%c0x%x", zLocation, orxRESOURCE_KC_LOCATION_SEPARATOR, u32ResourceIndex - 1);
+            orxSTRINGID stResourceID;
+            orxU32      u32ResourceIndex;
 
-            // Updates result
-            zResult = sacBuffer;
+            // Gets resource ID
+            stResourceID = orxString_Hash(_zName);
+
+            // Retrieves its index
+            u32ResourceIndex = (orxU32)(orxUPTR)orxHashTable_Get(*ppstToC, stResourceID);
+
+            // Valid?
+            if(u32ResourceIndex != 0)
+            {
+              // Creates location string: location + index
+              orxString_NPrint(sacBuffer, sizeof(sacBuffer), "%s%c0x%x", zLocation, orxRESOURCE_KC_LOCATION_SEPARATOR, u32ResourceIndex - 1);
+
+              // Updates result
+              zResult = sacBuffer;
+            }
           }
         }
 
@@ -1633,6 +1675,16 @@ const orxSTRING orxFASTCALL orxBundle_GetOutputName()
   // Done!
   return (shResource != orxHANDLE_UNDEFINED) ? orxResource_GetPath(orxResource_GetLocation(shResource)) : orxSTRING_EMPTY;
 }
+
+#if defined(__orxGCC__)
+
+  #pragma GCC diagnostic pop
+
+#elif defined(__orxLLVM__)
+
+  #pragma clang diagnostic pop
+
+#endif
 
 #endif // orxBUNDLE_IMPL
 
