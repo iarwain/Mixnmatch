@@ -20,6 +20,55 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 
 #endif // __orxMSVC__
 
+struct LayerContext
+{
+    const orxCHAR  *acCharacter;
+    const orxSTRING zCharacter;
+    const orxSTRING zFormat;
+};
+
+orxBOOL orxFASTCALL ProcessLayer(const orxSTRING _zKeyName, orxBOOL _bInherited, void *_pContext)
+{
+    const orxSTRING zLayer = _zKeyName;
+
+    // Get context
+    LayerContext *pstContext = (LayerContext *)_pContext;
+
+    // For all layer variations
+    for(orxS32 i = 0, iCount = orxConfig_GetListCount(zLayer); i < iCount; i++)
+    {
+        const orxSTRING zVariation = orxConfig_GetListString(zLayer, i);
+
+        // Get texture name
+        orxCHAR acTexture[256];
+        orxString_NPrint(acTexture, sizeof(acTexture), pstContext->zFormat, pstContext->zCharacter, zLayer, zVariation);
+
+        // Does it exist?
+        if(orxResource_Locate(orxTEXTURE_KZ_RESOURCE_GROUP, acTexture))
+        {
+            orxCHAR acAsset[64];
+
+            // Get asset name
+            orxString_NPrint(acAsset, sizeof(acAsset), "%s%s%s", pstContext->zCharacter, zLayer, zVariation);
+
+            // Add it to the character's section to default with random layer selection
+            orxConfig_PushSection(pstContext->acCharacter);
+            orxConfig_SetParent(pstContext->acCharacter, "Character");
+            const orxSTRING zAsset = acAsset;
+            orxConfig_AppendListString(zLayer, &zAsset, 1);
+            orxConfig_PopSection();
+
+            // Generate asset's content
+            orxConfig_PushSection(acAsset);
+            orxConfig_SetParent(acAsset, zLayer);
+            orxConfig_SetString(orxGRAPHIC_KZ_CONFIG_TEXTURE_NAME, acTexture);
+            orxConfig_PopSection();
+        }
+    }
+
+    return orxTRUE;
+}
+
 void GenerateCharacters()
 {
     orxConfig_PushSection("Characters");
@@ -41,42 +90,8 @@ void GenerateCharacters()
             orxString_NPrint(acCharacter, sizeof(acCharacter), "%sCharacter", zCharacter);
 
             // For all defined layers
-            for(orxS32 j = 0, jCount = orxConfig_GetKeyCount(); j < jCount; j++)
-            {
-                const orxSTRING zLayer = orxConfig_GetKey(j);
-
-                // For all layer variations
-                for(orxS32 k = 0, kCount = orxConfig_GetListCount(zLayer); k < kCount; k++)
-                {
-                    const orxSTRING zVariation = orxConfig_GetListString(zLayer, k);
-
-                    // Get texture name
-                    orxCHAR acTexture[256];
-                    orxString_NPrint(acTexture, sizeof(acTexture), zFormat, zCharacter, zLayer, zVariation);
-
-                    // Does it exist?
-                    if(orxResource_Locate(orxTEXTURE_KZ_RESOURCE_GROUP, acTexture))
-                    {
-                        orxCHAR acAsset[64];
-
-                        // Get asset name
-                        orxString_NPrint(acAsset, sizeof(acAsset), "%s%s%s", zCharacter, zLayer, zVariation);
-
-                        // Add it to the character's section to default with random layer selection
-                        orxConfig_PushSection(acCharacter);
-                        orxConfig_SetParent(acCharacter, "Character");
-                        const orxSTRING zAsset = acAsset;
-                        orxConfig_AppendListString(zLayer, &zAsset, 1);
-                        orxConfig_PopSection();
-
-                        // Generate asset's content
-                        orxConfig_PushSection(acAsset);
-                        orxConfig_SetParent(acAsset, zLayer);
-                        orxConfig_SetString(orxGRAPHIC_KZ_CONFIG_TEXTURE_NAME, acTexture);
-                        orxConfig_PopSection();
-                    }
-                }
-            }
+            LayerContext stContext = {acCharacter, zCharacter, zFormat};
+            orxConfig_ForAllKeys(ProcessLayer, orxTRUE, &stContext);
 
             // Pop config section
             orxConfig_PopSection();
@@ -84,6 +99,30 @@ void GenerateCharacters()
     }
 
     orxConfig_PopSection();
+}
+
+struct FrameContext
+{
+    const orxCHAR *acFrame;
+    const orxCHAR *acParent;
+};
+
+orxBOOL orxFASTCALL ProcessFrame(const orxSTRING _zKeyName, orxBOOL _bInherited, void *_pContext)
+{
+    // Get context
+    FrameContext *pstContext = (FrameContext *)_pContext;
+
+    orxConfig_PushSection(pstContext->acFrame);
+    orxConfig_SetString(_zKeyName, pstContext->acParent);
+    // Execute generative lazy command hook
+    if(*_zKeyName == '!')
+    {
+        orxConfig_GetString(_zKeyName);
+        orxConfig_ClearValue(_zKeyName);
+    }
+    orxConfig_PopSection();
+
+    return orxTRUE;
 }
 
 void GenerateAnims()
@@ -140,19 +179,8 @@ void GenerateAnims()
                                 orxString_NPrint(acParent, sizeof(acParent), "@%s", acParentFrame);
                                 orxConfig_PushSection(acParentFrame);
                                 // For all manually defined properties
-                                for(orxS32 l = 0, lCount = orxConfig_GetKeyCount(); l < lCount; l++)
-                                {
-                                    const orxSTRING zKey = orxConfig_GetKey(l);
-                                    orxConfig_PushSection(acFrame);
-                                    orxConfig_SetString(zKey, acParent);
-                                    // Execute generative lazy command hook
-                                    if(*zKey == '!')
-                                    {
-                                        orxConfig_GetString(zKey);
-                                        orxConfig_ClearValue(zKey);
-                                    }
-                                    orxConfig_PopSection();
-                                }
+                                FrameContext stContext = {acFrame, acParent};
+                                orxConfig_ForAllKeys(ProcessFrame, orxTRUE, &stContext);
                                 orxConfig_PopSection();
                             }
                         }
