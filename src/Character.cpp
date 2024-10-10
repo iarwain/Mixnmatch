@@ -7,9 +7,6 @@
 
 void Character::OnCreate()
 {
-    // Enable our input set
-    orxInput_EnableSet(orxConfig_GetCurrentSection(), orxTRUE);
-
     // Start facing down
     this->eLastOrientation = Down;
 }
@@ -22,10 +19,6 @@ void Character::Update(const orxCLOCK_INFO &_rstInfo)
 {
     // Push our config section
     PushConfigSection();
-
-    // Select our input set
-    const orxSTRING zInputSet = orxInput_GetCurrentSet();
-    orxInput_SelectSet(orxConfig_GetCurrentSection());
 
     // Update movement
     const orxSTRING zAnim = "Idle";
@@ -44,9 +37,6 @@ void Character::Update(const orxCLOCK_INFO &_rstInfo)
     orxCHAR acAnim[64];
     orxString_NPrint(acAnim, sizeof(acAnim), "%s%s", zAnim, orxConfig_GetListString("Orientations", this->eLastOrientation));
     SetAnim(acAnim, orxFALSE, orxTRUE);
-
-    // Restore previous input set
-    orxInput_SelectSet(zInputSet);
 
     // Pop config section
     PopConfigSection();

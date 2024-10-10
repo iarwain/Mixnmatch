@@ -1,0 +1,151 @@
+{
+  "version": "2.0.0",
+  "presentation": {
+    "reveal": "silent",
+    "revealProblems": "onProblem"
+  },
+  "type": "shell",
+  "linux": {
+    "options": {
+      "cwd": "build/linux/gmake/"
+    }
+  },
+  "osx": {
+    "options": {
+      "cwd": "build/mac/gmake/"
+    }
+  },
+  "windows": {
+    "options": {
+      "cwd": "build/windows/gmake/",
+      "shell": {
+        "executable": "cmd.exe",
+        "args": [
+          "/d",
+          "/c"
+        ]
+      }
+    }
+  },
+  "tasks": [
+    {
+      "label": "Update premake",
+      "group": "build",
+      "type": "shell",
+      "command": "./premake4",
+      "options": {
+        "cwd": "${workspaceFolder}/build/"
+      }
+    },
+    {
+      "label": "Build Mixnmatch (debug, profile, release)",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Build Mixnmatch (debug)",
+        "Build Mixnmatch (profile)",
+        "Build Mixnmatch (release)"
+      ],
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    {
+      "label": "Build Mixnmatch (debug)",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "linux": {
+        "command": "make -j config=debug64",
+      },
+      "osx": {
+        "command": "make -j config=debuguniv64"
+      },
+      "windows": {
+        "command": "mingw32-make.exe -j config=debug64"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    {
+      "label": "Build Mixnmatch (profile)",
+      "group": "build",
+      "type": "shell",
+      "linux": {
+        "command": "make -j config=profile64"
+      },
+      "osx": {
+        "command": "make -j config=profileuniv64"
+      },
+      "windows": {
+        "command": "mingw32-make.exe -j config=profile64"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    {
+      "label": "Build Mixnmatch (release)",
+      "group": "build",
+      "type": "shell",
+      "linux": {
+        "command": "make -j config=release64"
+      },
+      "osx": {
+        "command": "make -j config=releaseuniv64"
+      },
+      "windows": {
+        "command": "mingw32-make.exe -j config=release64"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    {
+      "label": "Run Mixnmatch (debug)",
+      "dependsOn": [
+        "Build Mixnmatch (debug)"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "type": "process",
+      "command": "Mixnmatchd",
+      "options": {
+        "cwd": "bin/"
+      }
+    },
+    {
+      "label": "Run Mixnmatch (release)",
+      "dependsOn": [
+        "Build Mixnmatch (release)"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "type": "process",
+      "command": "Mixnmatch",
+      "options": {
+        "cwd": "bin/"
+      }
+    },
+    {
+      "label": "Run Mixnmatch (profile)",
+      "dependsOn": [
+        "Build Mixnmatch (profile)"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "type": "process",
+      "command": "Mixnmatchp",
+      "options": {
+        "cwd": "bin/"
+      }
+    }
+  ]
+}

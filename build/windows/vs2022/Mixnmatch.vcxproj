@@ -35,7 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{33D1BB84-5B78-D744-B430-7079461E2D1D}</ProjectGuid>
+    <ProjectGuid>{673E31FC-CBF0-B943-A1E7-8E032480FC75}</ProjectGuid>
     <RootNamespace>Mixnmatch</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
@@ -487,11 +487,11 @@
     <ClInclude Include="..\..\..\include\Character.h" />
     <ClInclude Include="..\..\..\include\Mixnmatch.h" />
     <ClInclude Include="..\..\..\include\orxBundle.h" />
+    <ClInclude Include="..\..\..\include\orxExtensions.h" />
     <ClInclude Include="..\..\..\include\lz4\lz4.h" />
     <ClInclude Include="..\..\..\include\lz4\lz4hc.h" />
     <ClInclude Include="..\..\..\include\Scroll\Scroll.h" />
     <ClInclude Include="..\..\..\include\Scroll\ScrollBase.h" />
-    <ClInclude Include="..\..\..\include\Scroll\ScrollEd.h" />
     <ClInclude Include="..\..\..\include\Scroll\ScrollObject.h" />
   </ItemGroup>
   <ItemGroup>
@@ -501,11 +501,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\include\Scroll\Scroll.inl" />
-    <None Include="..\..\..\include\Scroll\ScrollBase.inl" />
-    <None Include="..\..\..\include\Scroll\ScrollEd.inl" />
-    <None Include="..\..\..\include\Scroll\ScrollObject.inl" />
+    <None Include="..\..\premake4.lua" />
     <None Include="..\..\..\data\config\CreationTemplate.ini" />
+    <None Include="..\..\..\data\config\ExtensionTemplate.ini" />
     <None Include="..\..\..\data\config\Mixnmatch-gen.ini" />
     <None Include="..\..\..\data\config\Mixnmatch-handmade.ini" />
     <None Include="..\..\..\data\config\Mixnmatch.ini" />

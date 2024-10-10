@@ -35,6 +35,7 @@ function initplatforms ()
     elseif os.is ("macosx") then
         return
         {
+            "universal64",
             "x64"
         }
     end
@@ -145,7 +146,10 @@ solution "Mixnmatch"
 -- Linux
 
     configuration {"linux"}
-        buildoptions {"-Wno-unused-function"}
+        buildoptions
+        {
+            "-Wno-unused-function"
+        }
         linkoptions {"-Wl,-rpath ./", "-Wl,--export-dynamic"}
         links
         {
@@ -249,7 +253,8 @@ project "Mixnmatch"
         "../src/**.cpp",
         "../src/**.c",
         "../include/**.h",
-        "../include/**.inl",
+        "../include/**.inc",
+        "../build/premake4.lua",
         "../data/config/**.ini"
     }
 
@@ -259,16 +264,14 @@ project "Mixnmatch"
         "../include"
     }
 
-    configuration {"windows", "vs*"}
-        buildoptions {"/EHsc"}
-
     vpaths
     {
-        ["inline"] = {"**.inl"},
+        ["bundle"] = {"**.inc"},
+        ["build"] = {"**premake4.lua"},
         ["config"] = {"**.ini"}
     }
 
-    configuration {"Bundle"}
+    configuration {"*Bundle*"}
         debugargs {"-b", "Mixnmatch.obr"}
 
 
@@ -291,3 +294,6 @@ project "Mixnmatch"
 
     configuration {"windows"}
         postbuildcommands {"cmd /c copy /Y $(ORX)\\lib\\dynamic\\orx*.dll " .. path.translate(copybase, "\\") .. "\\bin"}
+
+    configuration {"windows", "vs*"}
+        buildoptions {"/EHsc"}

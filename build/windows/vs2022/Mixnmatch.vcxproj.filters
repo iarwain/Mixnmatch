@@ -2,38 +2,32 @@
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="src">
-      <UniqueIdentifier>{8A223014-78C6-F54E-A4BB-707E13012EB4}</UniqueIdentifier>
+      <UniqueIdentifier>{044FFE3F-F6F0-BF48-A4A3-C31805FFB7BE}</UniqueIdentifier>
     </Filter>
     <Filter Include="include">
-      <UniqueIdentifier>{358D2E6B-E651-2F40-AC05-05D18C7E05B3}</UniqueIdentifier>
+      <UniqueIdentifier>{D6A879DA-5E6D-3F49-B0EA-297BBB6E47F3}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\lz4">
-      <UniqueIdentifier>{7200566D-89A2-C84C-834B-028CE508D13B}</UniqueIdentifier>
+      <UniqueIdentifier>{9F7E3BE3-ECF9-5F48-AB1D-12C92D07232B}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\Scroll">
-      <UniqueIdentifier>{E3D10A4D-3D90-F347-B916-5E3274947F2A}</UniqueIdentifier>
+      <UniqueIdentifier>{9BEE9440-9F83-6344-BD4E-4EAF98B25724}</UniqueIdentifier>
     </Filter>
-    <Filter Include="inline">
-      <UniqueIdentifier>{D6EB7927-AB0B-FA47-A49E-E21614B34D2A}</UniqueIdentifier>
+    <Filter Include="build">
+      <UniqueIdentifier>{6A1AC935-0C36-364E-846F-57DEAFCE18D4}</UniqueIdentifier>
     </Filter>
     <Filter Include="config">
-      <UniqueIdentifier>{15F68DBE-42DD-F342-B17A-3876FFB7F181}</UniqueIdentifier>
+      <UniqueIdentifier>{110388D8-FAFE-504F-9505-268D5D7E2DD0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\include\Scroll\Scroll.inl">
-      <Filter>inline</Filter>
-    </None>
-    <None Include="..\..\..\include\Scroll\ScrollBase.inl">
-      <Filter>inline</Filter>
-    </None>
-    <None Include="..\..\..\include\Scroll\ScrollEd.inl">
-      <Filter>inline</Filter>
-    </None>
-    <None Include="..\..\..\include\Scroll\ScrollObject.inl">
-      <Filter>inline</Filter>
+    <None Include="..\..\premake4.lua">
+      <Filter>build</Filter>
     </None>
     <None Include="..\..\..\data\config\CreationTemplate.ini">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\..\..\data\config\ExtensionTemplate.ini">
       <Filter>config</Filter>
     </None>
     <None Include="..\..\..\data\config\Mixnmatch-gen.ini">
@@ -65,6 +59,9 @@
     <ClInclude Include="..\..\..\include\orxBundle.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\orxExtensions.h">
+      <Filter>include</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\include\lz4\lz4.h">
       <Filter>include\lz4</Filter>
     </ClInclude>
@@ -75,9 +72,6 @@
       <Filter>include\Scroll</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\Scroll\ScrollBase.h">
-      <Filter>include\Scroll</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\Scroll\ScrollEd.h">
       <Filter>include\Scroll</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\Scroll\ScrollObject.h">
