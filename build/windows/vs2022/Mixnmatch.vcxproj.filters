@@ -2,22 +2,25 @@
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="src">
-      <UniqueIdentifier>{044FFE3F-F6F0-BF48-A4A3-C31805FFB7BE}</UniqueIdentifier>
+      <UniqueIdentifier>{54373538-29E3-2944-8B3C-6E21183449B7}</UniqueIdentifier>
     </Filter>
     <Filter Include="include">
-      <UniqueIdentifier>{D6A879DA-5E6D-3F49-B0EA-297BBB6E47F3}</UniqueIdentifier>
+      <UniqueIdentifier>{7BC65D07-E9BC-3048-9390-D170C995E3CE}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\lz4">
-      <UniqueIdentifier>{9F7E3BE3-ECF9-5F48-AB1D-12C92D07232B}</UniqueIdentifier>
+    <Filter Include="include\extensions">
+      <UniqueIdentifier>{8223DC04-EB2F-7143-9604-85BBCA6E033B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="include\Scroll">
-      <UniqueIdentifier>{9BEE9440-9F83-6344-BD4E-4EAF98B25724}</UniqueIdentifier>
+    <Filter Include="include\extensions\lz4">
+      <UniqueIdentifier>{84E6428B-E6F9-F04B-8274-65B84AC920EE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\extensions\Scroll">
+      <UniqueIdentifier>{1D53ED5C-F218-8347-9A12-37294C96E3E1}</UniqueIdentifier>
     </Filter>
     <Filter Include="build">
-      <UniqueIdentifier>{6A1AC935-0C36-364E-846F-57DEAFCE18D4}</UniqueIdentifier>
+      <UniqueIdentifier>{BD9703F0-2D2F-5D4F-BE25-E32BE60EE3FD}</UniqueIdentifier>
     </Filter>
     <Filter Include="config">
-      <UniqueIdentifier>{110388D8-FAFE-504F-9505-268D5D7E2DD0}</UniqueIdentifier>
+      <UniqueIdentifier>{B555B6E8-4950-404D-A70D-7466E4A7E0FD}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -56,26 +59,29 @@
     <ClInclude Include="..\..\..\include\Mixnmatch.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\orxBundle.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\include\orxExtensions.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\lz4\lz4.h">
-      <Filter>include\lz4</Filter>
+    <ClInclude Include="..\..\..\include\extensions\orxBundle.h">
+      <Filter>include\extensions</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\lz4\lz4hc.h">
-      <Filter>include\lz4</Filter>
+    <ClInclude Include="..\..\..\include\extensions\orxExtensions.h">
+      <Filter>include\extensions</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Scroll\Scroll.h">
-      <Filter>include\Scroll</Filter>
+    <ClInclude Include="..\..\..\include\extensions\lz4\lz4.h">
+      <Filter>include\extensions\lz4</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Scroll\ScrollBase.h">
-      <Filter>include\Scroll</Filter>
+    <ClInclude Include="..\..\..\include\extensions\lz4\lz4hc.h">
+      <Filter>include\extensions\lz4</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\Scroll\ScrollObject.h">
-      <Filter>include\Scroll</Filter>
+    <ClInclude Include="..\..\..\include\extensions\Scroll\Scroll.h">
+      <Filter>include\extensions\Scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\extensions\Scroll\ScrollBase.h">
+      <Filter>include\extensions\Scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\extensions\Scroll\ScrollObject.h">
+      <Filter>include\extensions\Scroll</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

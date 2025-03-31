@@ -27,7 +27,7 @@ struct LayerContext
     const orxSTRING zFormat;
 };
 
-orxBOOL orxFASTCALL ProcessLayer(const orxSTRING _zKeyName, orxBOOL _bInherited, void *_pContext)
+orxBOOL orxFASTCALL ProcessLayer(const orxSTRING _zKeyName, const orxSTRING _zSectionName, void *_pContext)
 {
     const orxSTRING zLayer = _zKeyName;
 
@@ -107,7 +107,7 @@ struct FrameContext
     const orxCHAR *acParent;
 };
 
-orxBOOL orxFASTCALL ProcessFrame(const orxSTRING _zKeyName, orxBOOL _bInherited, void *_pContext)
+orxBOOL orxFASTCALL ProcessFrame(const orxSTRING _zKeyName, const orxSTRING _zSectionName, void *_pContext)
 {
     // Get context
     FrameContext *pstContext = (FrameContext *)_pContext;
@@ -145,9 +145,9 @@ void GenerateAnims()
                 const orxSTRING zAnim = orxConfig_GetListString("Anims", j);
 
                 // For all orientations
-                for(orxS32 k = 0, kCount = orxConfig_GetListCount("Orientations"); k < kCount; k++)
+                for(orxS32 k = 0, kCount = orxConfig_GetListCount("OrientationList"); k < kCount; k++)
                 {
-                    const orxSTRING zOrientation = orxConfig_GetListString("Orientations", k);
+                    const orxSTRING zOrientation = orxConfig_GetListString("OrientationList", k);
 
                     // Init anim
                     orxCHAR acAnim[64];
@@ -256,6 +256,9 @@ orxSTATUS Mixnmatch::Init()
     // Create the scene
     CreateObject("Scene");
 
+    // Create the viewport
+    orxViewport_CreateFromConfig("MainViewport");
+
     // Done!
     return orxSTATUS_SUCCESS;
 }
@@ -282,7 +285,7 @@ void Mixnmatch::Exit()
 void Mixnmatch::BindObjects()
 {
     // Bind the Character class to the Character config section
-    ScrollBindObject<Character>("Character");
+    BindObject(Character);
 }
 
 /** Bootstrap function, it is called before config is initialized, allowing for early resource storage definitions

@@ -35,7 +35,7 @@ void Character::Update(const orxCLOCK_INFO &_rstInfo)
 
     // Update anim
     orxCHAR acAnim[64];
-    orxString_NPrint(acAnim, sizeof(acAnim), "%s%s", zAnim, orxConfig_GetListString("Orientations", this->eLastOrientation));
+    orxString_NPrint(acAnim, sizeof(acAnim), "%s%s", zAnim, orxConfig_GetListString("OrientationList", this->eLastOrientation));
     SetAnim(acAnim, orxFALSE, orxTRUE);
 
     // Pop config section
