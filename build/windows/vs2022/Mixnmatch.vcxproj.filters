@@ -2,25 +2,25 @@
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="src">
-      <UniqueIdentifier>{54373538-29E3-2944-8B3C-6E21183449B7}</UniqueIdentifier>
+      <UniqueIdentifier>{3A717B57-DA2A-1A41-8F9A-57976430FDB8}</UniqueIdentifier>
     </Filter>
     <Filter Include="include">
-      <UniqueIdentifier>{7BC65D07-E9BC-3048-9390-D170C995E3CE}</UniqueIdentifier>
+      <UniqueIdentifier>{D3FDD0CF-4AC8-C742-B3BD-06511220F23B}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\extensions">
-      <UniqueIdentifier>{8223DC04-EB2F-7143-9604-85BBCA6E033B}</UniqueIdentifier>
+      <UniqueIdentifier>{848C48EF-53C7-B946-9071-E47D59346877}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\extensions\lz4">
-      <UniqueIdentifier>{84E6428B-E6F9-F04B-8274-65B84AC920EE}</UniqueIdentifier>
+      <UniqueIdentifier>{412609E9-68AA-E840-9409-26229773483E}</UniqueIdentifier>
     </Filter>
     <Filter Include="include\extensions\Scroll">
-      <UniqueIdentifier>{1D53ED5C-F218-8347-9A12-37294C96E3E1}</UniqueIdentifier>
+      <UniqueIdentifier>{34942548-4D10-7046-A5D6-E28FAB9B9FBE}</UniqueIdentifier>
     </Filter>
     <Filter Include="build">
-      <UniqueIdentifier>{BD9703F0-2D2F-5D4F-BE25-E32BE60EE3FD}</UniqueIdentifier>
+      <UniqueIdentifier>{BCABCE10-6AE0-6945-A7FE-4CA2C0AA7194}</UniqueIdentifier>
     </Filter>
     <Filter Include="config">
-      <UniqueIdentifier>{B555B6E8-4950-404D-A70D-7466E4A7E0FD}</UniqueIdentifier>
+      <UniqueIdentifier>{115F7440-2096-0B48-92D0-3792BB52735F}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

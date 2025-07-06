@@ -154,6 +154,7 @@ solution "Mixnmatch"
         buildoptions
         {
             "-DorxWEB_EXECUTABLE_NAME='\"Mixnmatch.wasm\"'",
+            "-Wno-undefined-var-template",
             "--use-port=contrib.glfw3",
             "-pthread"
         }
