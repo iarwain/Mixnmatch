@@ -38,6 +38,12 @@ void Character::Update(const orxCLOCK_INFO &_rstInfo)
     orxString_NPrint(acAnim, sizeof(acAnim), "%s%s", zAnim, orxConfig_GetListString("OrientationList", this->eLastOrientation));
     SetAnim(acAnim, orxFALSE, orxTRUE);
 
+    // Update position to prevent intersecting layers
+    orxVECTOR vPos;
+    GetPosition(vPos);
+    vPos.fZ = -vPos.fY;
+    SetPosition(vPos);
+
     // Pop config section
     PopConfigSection();
 }
