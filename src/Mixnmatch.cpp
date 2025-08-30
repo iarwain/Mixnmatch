@@ -7,10 +7,8 @@
 #include "Mixnmatch.h"
 #undef __SCROLL_IMPL__
 
-#define orxBUNDLE_IMPL
-#include "orxBundle.h"
-
 #include "Character.h"
+#include "orxExtensions.h"
 
 #ifdef __orxMSVC__
 
@@ -228,6 +226,7 @@ void GenerateData()
     GenerateAnims();
 }
 
+static orxDOUBLE start;
 /** Update function, it has been registered to be called every tick of the core clock
  */
 void Mixnmatch::Update(const orxCLOCK_INFO &_rstInfo)
@@ -244,14 +243,28 @@ void Mixnmatch::Update(const orxCLOCK_INFO &_rstInfo)
         // Send close event
         orxEvent_SendShort(orxEVENT_TYPE_SYSTEM, orxSYSTEM_EVENT_CLOSE);
     }
+    static orxBOOL b = orxFALSE;
+    if (!b)
+    {
+        if (orxTexture_GetLoadCount() == 0)
+        {
+            b = true;
+            orxLOG("LOADED in %.2fs", orxSystem_GetSystemTime() - start);
+        }
+    }
 }
 
 /** Init function, it is called when all orx's modules have been initialized
  */
 orxSTATUS Mixnmatch::Init()
 {
+    // Init extesions
+    InitExtensions();
+
     // Generate data
     GenerateData();
+
+    start = orxSystem_GetSystemTime();
 
     // Create the scene
     CreateObject("Scene");
@@ -275,7 +288,8 @@ orxSTATUS Mixnmatch::Run()
  */
 void Mixnmatch::Exit()
 {
-    orxBundle_Exit();
+    // Exit from extensions
+    ExitExtensions();
 
     // Let orx clean all our mess automatically. :)
 }
@@ -292,11 +306,8 @@ void Mixnmatch::BindObjects()
  */
 orxSTATUS Mixnmatch::Bootstrap() const
 {
-    orxBundle_Init();
-
-    // Add config storage to find the initial config file
-    orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, orxBUNDLE_KZ_RESOURCE_STORAGE "Mixnmatch.obr", orxFALSE);
-    orxResource_AddStorage(orxCONFIG_KZ_RESOURCE_GROUP, "../data/config", orxFALSE);
+    // Bootstraps extensions
+    BootstrapExtensions();
 
     // Return orxSTATUS_FAILURE to prevent orx from loading the default config file
     return orxSTATUS_SUCCESS;
